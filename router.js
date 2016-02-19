@@ -3,8 +3,14 @@
  */
 
 
-function route(pathname){
+function route(handle, pathname){
     console.log("Currently routing " + pathname );
+    if(typeof handle[pathname] === 'function'){
+        handle[pathname]();
+    }
+    else{
+        console.log("Unable to find a handler for your request");
+    }
 
 }
 

@@ -12,11 +12,7 @@ function start(route, handle) {
         console.log("Request received");
 
         var pathname = url.parse(request.url).pathname;
-        route(handle, pathname);
-
-        response.writeHead(200, {"Content-type": "text/plain"});
-        response.write("Hello KK! Keep learning node.js");
-        response.end();
+        route(handle, pathname, response);
     }
 
     //create the server

@@ -3,6 +3,6 @@
 h1= user.name
 h2 Bio
 p= user.bio
-form(action="/users/" + encodeURIComponent(user.username), method="POST")
-    input(name="_method", type="hidden", value="DELETE")
-    input(type="submit", value="Delete")
+form(action="/delete/" + encodeURIComponent(user.username), method="POST")
+  input(type="hidden", name="_method",  value="DELETE")
+  input(type="submit", value="Delete")

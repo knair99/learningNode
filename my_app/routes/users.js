@@ -13,7 +13,7 @@ router.get('/users', function(req, res){
 });
 
 //Add new user
-router.get('/users/new', function(req, res, err){
+router.get('/users/new', function(req, res){
   res.render('users/new', {title: "New user"});
 });
 
@@ -26,6 +26,7 @@ router.get('/users/:name', function(req, res, next){
     next();
   }
 });
+
 
 //POST request for users
 router.post('/users', function(req, res){
@@ -46,5 +47,6 @@ router.delete('/users/:name', function(req, res, next){
     next();
   }
 });
+
 
 module.exports = router;

@@ -25,18 +25,51 @@ function handler(req, res){
 
 
 io.sockets.on('connection', function (socket) {
+
+    //handle user broadcast messages
     socket.on('clientMessage', function(content) {
         socket.emit('serverMessage', 'You said: ' + content);
         username = socket.username;
-        socket.broadcast.emit('serverMessage', username + ' said: ' + content);
+        var room = socket.room;
+        var message = content;
+        if(room){
+            socket.broadcast.to(room);
+        }
+        socket.broadcast.emit('serverMessage', username + ' said: ' + message);
     });
 
+    //handle user login
     socket.on('login', function(username) {
             socket.username = username;
             socket.emit('serverMessage', 'Currently logged in as ' + username);
             socket.broadcast.emit('serverMessage', 'User ' + username +
                 ' logged in');
     });
+
+    //handle client disconnects
+    socket.on('disconnect', function() {
+        username = socket.username;
+        socket.broadcast.emit('serverMessage', 'User ' + username + ' disconnected');
+    });
+
+    //handle room joins
+    socket.on('join', function(room){
+       socket.room = room;
+       socket.join(room);
+        if(socket.oldRoom){
+            socket.leave(oldRoom);
+        }
+
+        username = socket.username;
+        if(!username){
+            username = socket.id;
+        }
+
+        socket.emit('serverMessage', 'You joined room: ' + room);
+        socket.broadcast.to(room).emit('serverMessage', 'User ' + username + ' has joined this room');
+
+    });
+
     socket.emit('login');
 });
 

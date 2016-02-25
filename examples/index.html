@@ -53,6 +53,26 @@
                 socket.emit('login', username);
             });
 
+            //give option for user to join a room
+            function sendCommand(command, args){
+                if(command === 'j'){
+                    socket.emit('join', args);
+                } else {
+                    console.log('user is high and typing unknown commands');
+                }
+            }
+
+            //now be able to detect commands
+            function sendMessage(message){
+                //use regex to detect message match
+                var commandMatch = message.match(/^\/(\w*)(.*)/);
+                if (commandMatch){
+                    sendCommand(commandMatch[1], commandMatch[2].trim())
+                } else {
+                    //otherwise, it's chat
+                    socket.emit('clientMessage', message);
+                }
+            }
 
             //handle the text input upon hitting keydown
             var inputElement = document.getElementById('input');
@@ -60,7 +80,7 @@
             inputElement.onkeydown = function(keyboardEvent){
                 if(keyboardEvent.keyCode === 13){
                     //Enter has been pressed, send the client message as an event emitted
-                    socket.emit('clientMessage', inputElement.value);
+                    sendMessage(inputElement.value);
                     //reset the text box
                     inputElement.value = '';
                     return false;

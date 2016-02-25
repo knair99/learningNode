@@ -24,27 +24,20 @@ function handler(req, res){
 }
 
 
-io.sockets.on('connection', function(socket){
-
-    socket.emit('login');
-
-    socket.on('clientMessage', function(content){
+io.sockets.on('connection', function (socket) {
+    socket.on('clientMessage', function(content) {
         socket.emit('serverMessage', 'You said: ' + content);
-        socket.broadcast.emit('serverMessage', socket.id + ' said ' + content);
+        username = socket.username;
+        socket.broadcast.emit('serverMessage', username + ' said: ' + content);
     });
 
-
-    //handle chat logins
-    socket.on('login', function(username){
-        socket.set('username', username, function(err){
-            if(err){ throw err; }
-            socket.emit('serverMessage', 'Currently logged in as ' + function(username){
-                socket.broadcast.emit('serverMessage', 'User: ' + username + ' has logged in.' );
-            });
-        });
-
-
+    socket.on('login', function(username) {
+            socket.username = username;
+            socket.emit('serverMessage', 'Currently logged in as ' + username);
+            socket.broadcast.emit('serverMessage', 'User ' + username +
+                ' logged in');
     });
+    socket.emit('login');
 });
 
 

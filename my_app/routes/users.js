@@ -2,6 +2,8 @@ var express = require('express');
 var router = express.Router();
 var users = require('../data/users');
 var User = require('../data/models/users');
+var async = require('async');
+
 var maxUsersPerPage = 2;
 
 //Get user list
@@ -9,21 +11,34 @@ router.get('/', function(req, res){
   //this is how mongodb returns all users - find on an empty object
   //pagination for user list
   var page = req.query.page && parseInt(req.query.page, 10) || 0;
-  User.count(function(err, count) {
-    if (err) {
-      return next(err);
-    }
-    var lastPage = (page + 1) * maxUsersPerPage >= count;
-    User.find({})
-        .sort('name')
-        .skip(page * maxUsersPerPage)
-        .limit(maxUsersPerPage)
-        .exec(function (err, users) {
-          if (err) {
-            return next(err);
-          }
-          res.render('users/index', {title: 'Users listing', users: users, page: page, lastPage: lastPage});
-        });
+
+  //Here's how you parallelize I/O requests with async
+  async.parallel(
+      [
+      //Parallel task 1
+          function(next) {
+            User.count(next);  //count users in db
+          },
+      //Parallel task 2
+          function(next) {
+            User.find({})//Find correct users for page (sorted, limited by page)
+                .sort('name')
+                .skip(page * maxUsersPerPage)
+                .limit(maxUsersPerPage)
+                .exec(next);
+                  }
+    ],
+    //Finally the callback for async where you can do actual rendering
+    function(err, results){
+      if(err){
+        return next(err);
+      }
+      var count = results[0]; //First query results
+      var users = results[1]; //Second query results
+
+      var lastPage = (page + 1) * maxUsersPerPage >= count;
+      //And now, render
+      res.render('users/index', {title: 'Users listing', users: users, page: page, lastPage: lastPage});
   });
 });
 

@@ -34,6 +34,10 @@ app.use(function(req, res, next) {
   next(err);
 });
 
+//setup mongoose
+var dbURL ='mongodb://localhost/database';
+var db = require('mongoose').connect(dbURL);
+
 // error handlers
 
 // development error handler

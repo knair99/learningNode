@@ -7,12 +7,12 @@ var users = require('../data/users');
 
 //Delete a user
 router.post('/:name', function(req, res, next){
-    if(users[req.params.name]){
-        delete users[req.params.name]; //delete from json object in memory
+    req.user.remove(function(err){
+        if(err){
+            return next(err);
+        }
         res.redirect('/users');
-    } else {
-        next();
-    }
+    });
 });
 
 module.exports = router;
